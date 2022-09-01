@@ -42,3 +42,15 @@ def get_nt_file_entries(elf_file):
                 break
 
     return files
+
+
+def get_files_and_build_ids(elf_file):
+    files = get_nt_file_entries(elf_file)
+
+    result = []
+
+    for file in files:
+        build_id = get_build_id(file)
+        result.append((file.decode("utf8"), build_id))
+
+    return result
