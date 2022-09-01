@@ -1,29 +1,6 @@
-from ast import Import
 import sys
-import os
 
-try:
-    from elftools.elf.elffile import ELFFile
-    from elftools.elf.sections import NoteSection
-    from elftools.elf.segments import NoteSegment
-    from rich import print
-except ImportError:
-    print("[!] Please install elftools + rich")
-    sys.exit(1)
-
-
-def dump_build_id(elf_file):
-    if not os.path.exists(elf_file):
-        return "\[unable to find file]"
-
-    with open(elf_file, "rb") as f:
-        elf = ELFFile(f)
-        for section in elf.iter_sections():
-            if isinstance(section, NoteSection):
-                for note in section.iter_notes():
-                    if section.name == ".note.gnu.build-id":
-                        return note.n_desc
-    assert False, "No build-id found in {}".format(elf_file)
+from core_elf_build_ids.build_ids import get_nt_file_entries, get_build_id
 
 
 def main():
@@ -31,25 +8,12 @@ def main():
 
     core_file = sys.argv[1]
 
-    files = []
-
-    with open(core_file, "rb") as f:
-        elf = ELFFile(f)
-        for segment in elf.iter_segments():
-            if not isinstance(segment, NoteSegment):
-                continue
-            for note in segment.iter_notes():
-                if note["n_type"] != "NT_FILE":
-                    continue
-
-                desc = note["n_desc"]
-                files = sorted(set(desc["filename"]))
-                break
+    nt_files = get_nt_file_entries(core_file)
 
     print("Found files with build ids:")
 
-    for file in files:
-        build_id = dump_build_id(file)
+    for file in nt_files:
+        build_id = get_build_id(file)
         print(file.decode("utf-8"), "-", build_id)
 
 

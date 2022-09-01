@@ -5,6 +5,9 @@ description = "parse build ids from an ELF coredump file"
 authors = ["Noah Pendleton <2538614+noahp@users.noreply.github.com>"]
 license = "MIT"
 
+[tool.poetry.scripts]
+core-elf-build-ids = 'core_elf_build_ids.core_build_ids:main'
+
 [tool.poetry.dependencies]
 python = "^3.8"
 pyelftools = "^0.28"
@@ -15,3 +18,12 @@ rich = "^12.5.1"
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.isort]
+profile = "black"
+
+[tool.mypy]
+show_error_codes = true
+
+[tool.pylint.main]
+ignore-paths = ["tests/"]
